@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор Линейного Расширения</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .transition-all { transition-duration: 0.3s; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                </div>
+                <h1 class="text-lg font-bold text-slate-900 leading-tight">Window<span class="text-blue-600">Calc</span><br><span class="text-xs font-normal text-slate-500">Линейное расширение</span></h1>
+            </div>
+            <button onclick="toggleClimateModal()" class="text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-2 rounded-lg transition-colors">
+                <i class="fa-solid fa-cloud-sun mr-1"></i> Климат Астаны
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-4 md:p-8">
+        <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Left Column: Inputs -->
+            <div class="space-y-6">
+                
+                <!-- Material Card -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
+                    <h2 class="text-sm uppercase tracking-wide text-slate-500 font-bold mb-4">1. Материал</h2>
+                    <div class="relative">
+                        <select id="material" onchange="calculate()" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 appearance-none cursor-pointer">
+                            <option value="pvc_white" data-coeff="0.08">ПВХ (Белый)</option>
+                            <option value="pvc_color" data-coeff="0.08">ПВХ (Ламинация/Цвет)</option>
+                            <option value="aluminum" data-coeff="0.023">Алюминий</option>
+                            <option value="steel" data-coeff="0.012">Сталь (Армировка)</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    <p id="coeff-display" class="mt-2 text-xs text-slate-400">Коэффициент: 0.08 мм/м°C</p>
+                </div>
+
+                <!-- Dimensions Card -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
+                    <h2 class="text-sm uppercase tracking-wide text-slate-500 font-bold mb-4">2. Параметры</h2>
+                    
+                    <div class="mb-4">
+                        <label class="block mb-2 text-sm font-medium text-slate-700">Длина конструкции (мм)</label>
+                        <div class="relative">
+                            <input type="number" id="length" value="2500" oninput="calculate()" class="bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-3 pl-10" placeholder="2500">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-arrows-left-right"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block mb-2 text-sm font-medium text-slate-700">Т монтажа (°C)</label>
+                        <input type="number" id="t_mont" value="20" oninput="calculate()" class="bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-3" placeholder="20">
+                    </div>
+                </div>
+
+                <!-- Temperature Card -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-10 -mt-10 blur-xl"></div>
+                    <h2 class="text-sm uppercase tracking-wide text-slate-500 font-bold mb-4">3. Экстремумы</h2>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-blue-800"><i class="fa-regular fa-snowflake mr-1"></i> Зима (Мин)</label>
+                            <input type="number" id="t_min" value="-40" oninput="calculate()" class="bg-blue-50 border border-blue-200 text-blue-900 rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-3 font-semibold">
+                            <p class="text-[10px] text-slate-400 mt-1">Рекорд Астаны: -51.6°C</p>
+                        </div>
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-red-800"><i class="fa-regular fa-sun mr-1"></i> Лето (Макс)</label>
+                            <input type="number" id="t_max" value="50" oninput="calculate()" class="bg-red-50 border border-red-200 text-red-900 rounded-xl focus:ring-red-500 focus:border-red-500 block w-full p-3 font-semibold">
+                            <p class="text-[10px] text-slate-400 mt-1">Температура профиля!</p>
+                        </div>
+                    </div>
+
+                    <!-- Warning Box -->
+                    <div id="temp-warning" class="hidden mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-0.5"></i>
+                        <p class="text-xs text-amber-800 leading-tight">
+                            <span class="font-bold">Внимание:</span> Выбрана ламинация. Темный профиль на солнце может нагреваться выше +70°C. Рекомендуем увеличить T макс.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 h-full flex flex-col justify-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-red-500"></div>
+                    
+                    <h2 class="text-center text-slate-500 uppercase text-xs font-bold tracking-widest mb-8">Результаты Расчета</h2>
+
+                    <!-- Visual Representation -->
+                    <div class="flex justify-between items-end mb-2 px-4">
+                        <span class="text-xs text-blue-500 font-bold">Сжатие</span>
+                        <span class="text-xs text-red-500 font-bold">Расширение</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-4 rounded-full mb-8 relative overflow-hidden flex">
+                        <div id="bar-shrink" class="h-full bg-blue-400 w-0 transition-all duration-500 border-r border-white"></div>
+                        <div class="h-full bg-slate-300 w-[2px]"></div> <!-- Center Marker -->
+                        <div id="bar-expand" class="h-full bg-red-400 w-0 transition-all duration-500 border-l border-white"></div>
+                    </div>
+
+                    <!-- Numbers -->
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                            <span class="text-slate-600">Зимнее сжатие:</span>
+                            <span class="text-2xl font-bold text-blue-600" id="res_shrink">0 мм</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                            <span class="text-slate-600">Летнее расширение:</span>
+                            <span class="text-2xl font-bold text-red-600" id="res_expand">0 мм</span>
+                        </div>
+                        <div class="bg-slate-900 text-white rounded-xl p-6 mt-4">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-slate-300 text-sm">Общий ход (ΔL):</span>
+                                <i class="fa-solid fa-calculator text-slate-500"></i>
+                            </div>
+                            <div class="text-4xl font-bold tracking-tight text-center mt-2" id="res_total">0 мм</div>
+                            <p class="text-center text-xs text-slate-400 mt-2">Необходимый запас на компенсацию</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 text-xs text-center text-slate-400">
+                        *Расчет является справочным. Сверяйтесь с каталогом системодателя.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Climate Modal (Hidden by default) -->
+    <div id="climateModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white p-4 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-lg">Климат: Астана</h3>
+                <button onclick="toggleClimateModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                <p class="text-sm text-slate-500 mb-4 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                    <i class="fa-solid fa-circle-info mr-1"></i>
+                    Для расчетов используйте значения, близкие к <strong>Абсолютному Минимуму</strong> (-40...-50°C).
+                </p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-slate-500 uppercase bg-slate-50">
+                            <tr>
+                                <th class="px-3 py-2 rounded-l-lg">Месяц</th>
+                                <th class="px-3 py-2 text-blue-600">Абс. Мин</th>
+                                <th class="px-3 py-2 text-red-600 rounded-r-lg">Абс. Макс</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-3 py-2 font-medium">Январь</td><td class="px-3 py-2 font-bold text-blue-700">-51.6</td><td class="px-3 py-2">+5.0</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">Февраль</td><td class="px-3 py-2 font-bold text-blue-700">-48.9</td><td class="px-3 py-2">+8.2</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">Июнь</td><td class="px-3 py-2">-1.5</td><td class="px-3 py-2 font-bold text-red-700">+40.1</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">Июль</td><td class="px-3 py-2">+2.3</td><td class="px-3 py-2 font-bold text-red-700">+41.6</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">Декабрь</td><td class="px-3 py-2 font-bold text-blue-700">-43.5</td><td class="px-3 py-2">+5.2</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="text-xs text-slate-400 mt-2 text-right">Источник: pogodaiklimat.ru</p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
+                <button onclick="applyAstanaDefaults()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors shadow-sm">
+                    Применить настройки для Астаны (-40 / +50)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        // Constants
+        const DEFAULT_T_MIN = -40;
+        const DEFAULT_T_MAX_WHITE = 50;
+        const DEFAULT_T_MAX_COLOR = 70;
+
+        function calculate() {
+            // Get inputs
+            const materialSelect = document.getElementById('material');
+            const selectedOption = materialSelect.options[materialSelect.selectedIndex];
+            const coeff = parseFloat(selectedOption.getAttribute('data-coeff'));
+            const materialType = materialSelect.value;
+            
+            // Get Values
+            const length = parseFloat(document.getElementById('length').value) || 0;
+            const t_mont = parseFloat(document.getElementById('t_mont').value) || 0;
+            const t_min = parseFloat(document.getElementById('t_min').value) || 0;
+            const t_max = parseFloat(document.getElementById('t_max').value) || 0;
+
+            // Update Coeff Display
+            document.getElementById('coeff-display').innerText = `Коэффициент: ${coeff} мм/м°C`;
+
+            // Logic Warning for Lamination
+            const warningBox = document.getElementById('temp-warning');
+            if (materialType === 'pvc_color' && t_max < 60) {
+                warningBox.classList.remove('hidden');
+            } else {
+                warningBox.classList.add('hidden');
+            }
+
+            // Calculations
+            // Formula: (Length / 1000) * coeff * deltaT
+            const shrink = Math.abs((length / 1000) * coeff * (t_mont - t_min));
+            const expand = Math.abs((length / 1000) * coeff * (t_max - t_mont));
+            const total = shrink + expand;
+
+            // Display Results (rounded to 1 decimal)
+            document.getElementById('res_shrink').innerText = shrink.toFixed(1) + ' мм';
+            document.getElementById('res_expand').innerText = expand.toFixed(1) + ' мм';
+            document.getElementById('res_total').innerText = total.toFixed(1) + ' мм';
+
+            // Visual Bar Update
+            // We assume a "max reasonable expansion" of about 20mm for visualization scale
+            const maxScale = 25; 
+            const shrinkPct = Math.min((shrink / maxScale) * 100, 48); // max 48% width
+            const expandPct = Math.min((expand / maxScale) * 100, 48); // max 48% width
+            
+            document.getElementById('bar-shrink').style.width = `${shrinkPct}%`;
+            document.getElementById('bar-expand').style.width = `${expandPct}%`;
+        }
+
+        // Modal Logic
+        function toggleClimateModal() {
+            const modal = document.getElementById('climateModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function applyAstanaDefaults() {
+            document.getElementById('t_min').value = -40;
+            // Check material for max temp
+            const mat = document.getElementById('material').value;
+            if (mat === 'pvc_color' || mat === 'aluminum') {
+                document.getElementById('t_max').value = 70;
+            } else {
+                document.getElementById('t_max').value = 50;
+            }
+            toggleClimateModal();
+            calculate();
+        }
+
+        // Init
+        calculate();
+    </script>
+</body>
+</html>
